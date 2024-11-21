@@ -8,7 +8,7 @@ import time
 import logging
 from youBot import YouBot
 from grid_mapping import MappingBot
-from pathplanning import youBotPP
+from pathplanning_multimode import youBotPP
 from mcl_coppelia import LocalizationBot
 
 
@@ -45,10 +45,15 @@ class SLAMController:
         """경로 계획 실행"""
         logging.info("Starting Path Planning...")
         while not self.stop_event.is_set():
-            if self.target_points:  # 목표 지점이 있을 때만 실행
-                current_target = self.target_points.pop(0)  # 첫 번째 목표 지점 가져오기
-                logging.info(f"Moving to target: {current_target}")
-                self.planning.navigate_to(current_target)
+            if self.mapping_mode.is_set():
+                # Waypoints 순찰
+                self.planning.set_mode("mapping")
+                self.planning.run_coppelia()
+            elif self.localization_mode.is_set() and self.target_points:
+                # Single goal path planning
+                goal = self.target_points[0]  # Use the first target point
+                self.planning.set_mode("localization", goal)
+                self.planning.run_coppelia()
             time.sleep(0.1)
 
     def run_mapping(self):
@@ -116,20 +121,10 @@ class SLAMController:
         valid_points = list(self.predefined_points.keys())
         logging.info(f"Available locations: {valid_points}")
 
-        # 첫 번째 목표 지점 입력
         while True:
-            first_target = input(f"Enter the first target point from {valid_points}: ")
+            first_target = input(f"Enter a target point from {valid_points}: ")
             if first_target in self.predefined_points:
                 self.target_points.append(self.predefined_points[first_target])
-                break
-            else:
-                logging.warning("Invalid location. Please select from the available options.")
-
-        # 두 번째 목표 지점 입력
-        while True:
-            second_target = input(f"Enter the second target point from {valid_points}: ")
-            if second_target in self.predefined_points:
-                self.target_points.append(self.predefined_points[second_target])
                 break
             else:
                 logging.warning("Invalid location. Please select from the available options.")

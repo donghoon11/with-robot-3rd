@@ -21,10 +21,11 @@ class MappingBot(YouBot):
         theta = self.sim.getObjectOrientation(self.youBot_ref)[2]
         return x, y, theta
     
-    def run_step(self):
+    def run_step(self, count):
         # self.control_car()
         
         scan = self.read_lidars()
+        print('yes')
         loc = self.read_ref()
         
         # update grid
@@ -134,7 +135,7 @@ class Grid():
         np.clip(self.grid, -5, 5, out=self.grid)        # 마지막으로 그리드의 모든 셀 값이 -5에서 5 사이로 제한.
 
     def save(self):
-        with open("/home/oh/my_coppeliasim/modulabs_coppeliasim/localization/mapping_test.npy", "wb") as f:
+        with open("/home/oh/my_coppeliasim/with-robot-3rd/car_module/mapping.npy", "wb") as f:
             np.save(f, self.grid)
 
     def visualize(self, loc, scan):

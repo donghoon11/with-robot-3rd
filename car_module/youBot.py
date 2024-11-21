@@ -33,7 +33,7 @@ class YouBot:
         self.control = Control()
 
     def on_press(self, key):
-        deltaX, deltaZ = 0.5, np.pi / 20
+        deltaX, deltaZ = 1.0, np.pi / 10
         if key == Key.up:
             self.control.vel_X += deltaX
             self.control.vel_Z += min(deltaZ, abs(self.control.vel_Z)) * (
@@ -101,10 +101,10 @@ class YouBot:
         self.youBot_ref = self.sim.getObject("/youBot_ref")
         # Wheel Joints: front left, rear left, rear right, front right
         self.wheels = []
-        self.wheels.append(self.sim.getObject("/rollingJoint_fl"))  # wheels[0]
-        self.wheels.append(self.sim.getObject("/rollingJoint_rl"))  # wheels[1]
-        self.wheels.append(self.sim.getObject("/rollingJoint_fr"))  # wheels[2]
-        self.wheels.append(self.sim.getObject("/rollingJoint_rr"))  # wheels[3]
+        self.wheels.append(self.sim.getObject("/rollingJoint_fl"))
+        self.wheels.append(self.sim.getObject("/rollingJoint_rl"))
+        self.wheels.append(self.sim.getObject("/rollingJoint_fr"))
+        self.wheels.append(self.sim.getObject("/rollingJoint_rr"))
         # Arm Joints
         self.arms = []
         for i in range(5):
@@ -159,19 +159,25 @@ class YouBot:
         return img
 
     def run_coppelia(self):
-        self.init_coppelia()
         # key input
         Listener(on_press=self.on_press).start()
         # start simulation
         self.sim.setStepping(True)
         self.sim.startSimulation()
-        
+        count = 0
         while self.run_flag:
+            count += 1
             # step
-            self.run_step()
+            self.run_step(count)
             self.sim.step()
         self.sim.stopSimulation()
 
     @abstractmethod
-    def run_step(self):
+    def run_step(self, count):
         pass
+
+
+if __name__ == "__main__":
+    client = YouBot()
+    client.init_coppelia()
+    client.run_coppelia()

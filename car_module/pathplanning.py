@@ -12,7 +12,7 @@ class youBotPP:
         self.run_flag = True
         self.not_first_here = False
 
-    def init_coppelia_pp(self):
+    def init_coppelia(self):
         self.robotHandle = self.sim.getObject('/youBot')
         self.refHandle = self.sim.getObject('/youBot_ref')
         self.collVolumeHandle = self.sim.getObject('/youBot_coll')
@@ -182,7 +182,7 @@ class youBotPP:
         # self.sim.setStepping(True)
         self.sim.startSimulation(True)
         while self.run_flag:
-            for i in range(2):
+            for i in range(len(self.waypoints)):
                 goalPos = self.sim.getObjectPosition(self.waypoints[i], -1)
                 print(f'goal position : {goalPos}')
                 try:
@@ -191,33 +191,18 @@ class youBotPP:
                 except:
                     print('Fail to find path.')
                 if path != None:
-                    self.followPath(goalDummyHandle=self.waypoints[i], path=path)
+                    self.followPath(goalDummy=self.waypoints[i], path=path)
                     self.omni_wheel_control(0.0, 0.0, 0.0)
                     self.clear_path()
-                    if i == 1:
-                        break
-                    self.redBoxDummy = self.sim.getObject('/goalDummy')
-                    redBoxPos = self.sim.getObjectPosition(self.redBoxDummy, -1)
-                    print(f'target position : {redBoxPos}')
-
-                    try:
-                        path_l = self.findPath(redBoxPos)
-                        print(f'Find the path')
-                    except:
-                        print('Fail to find path.')
-                    if path_l != None:    
-                        self.followPath(goalDummyHandle=self.redBoxDummy, path=path_l)
-                        self.omni_wheel_control(0.0, 0.0, 0.0)
-                        self.clear_path()
                 print('move to another waypoint')
                 time.sleep(2)
             print('check')
-            #self.omni_wheel_control(0.0, 0.0, 0.0)
-            #break
+            self.omni_wheel_control(0.0, 0.0, 0.0)
+            break
         print('robot reaches the goal position')
         self.sim.stopSimulation()
 
 if __name__ == "__main__":
     controller = youBotPP()
-    controller.init_coppelia_pp()
+    controller.init_coppelia()
     controller.run_coppelia()

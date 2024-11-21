@@ -38,7 +38,7 @@ class MCL:
         # particles : 1000 
         self.particles = [Particle() for i in range(500)]
         # grid
-        with open("/home/oh/my_coppeliasim/modulabs_coppeliasim/localization/mapping_test.npy","rb") as f:
+        with open("/home/oh/my_coppeliasim/with-robot-3rd/car_module/mapping.npy","rb") as f:
             self.grid = np.load(f)
         # plot grid
         r = np.linspace(-5, 5, 101)
